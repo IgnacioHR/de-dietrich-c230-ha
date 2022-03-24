@@ -1,21 +1,25 @@
 {
     "config": {
-        "abort": {
-            "already_configured": "Device is already configured"
-        },
-        "error": {
-            "cannot_connect": "Failed to connect",
-            "invalid_auth": "Invalid authentication",
-            "unknown": "Unexpected error"
-        },
-        "step": {
-            "user": {
-                "data": {
-                    "host": "Host",
-                    "password": "Password",
-                    "username": "Username"
-                }
-            }
+      "flow_title": "{name}",
+      "step": {
+        "user": {
+          "title": "Link your Diematic boiler",
+          "description": "Set up your Diematic boiler via the Diematic HTTP server to integrate with Home Assistant",
+          "data": {
+            "host": "Host",
+            "port": "Port",
+            "ssl": "use ssl?",
+            "verify_ssl": "verify server certificate?"
+          }
         }
+      },
+      "error": {
+        "cannot_connect": "Failed to connect",
+        "invalid_auth": "Invalid authentication",
+        "unknown": "Unexpected error"
+      },
+        "abort": {
+        "already_configured": "Device is already configured"
+      }
     }
-}
+  }

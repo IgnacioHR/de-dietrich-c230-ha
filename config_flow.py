@@ -1,108 +1,110 @@
-"""Config flow for De Dietrich C-230 Eco integration."""
+"""Config flow to configure the Diematic integration."""
 from __future__ import annotations
 
 import logging
 from typing import Any
 
-import voluptuous as vol
-
-from homeassistant import config_entries
+from .exceptions import (
+    DiematicConnectionError,
+    DiematicError,
+    DiematicParseError,
+    DiematicResponseError,
+)
+from .boiler_client import DiematicBoilerClient
+from homeassistant.config_entries import ConfigFlow
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.const import (
+    CONF_HOST,
+    CONF_PORT,
+    CONF_SSL,
+    CONF_VERIFY_SSL,
+)
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import DOMAIN
+from .const import CONF_UUID, DOMAIN
+
+import voluptuous as vol
 
 _LOGGER = logging.getLogger(__name__)
 
-# TODO adjust the data schema to the data that you need
-STEP_USER_DATA_SCHEMA = vol.Schema(
-    {
-        vol.Required("host"): str,
-        vol.Required("username"): str,
-        vol.Required("password"): str,
-    }
-)
+
+async def validate_input(hass: HomeAssistant, data: dict) -> dict[str, Any]:
+    """Validate the user input"""
+    session = async_get_clientsession(hass)
+    boilerclient = DiematicBoilerClient(
+        host=data[CONF_HOST],
+        port=data[CONF_PORT],
+        tls=data[CONF_SSL],
+        verify_ssl=data[CONF_VERIFY_SSL],
+        session=session,
+    )
+
+    boiler = await boilerclient.boiler()
+
+    return {CONF_UUID: boiler.info.uuid}
 
 
-class PlaceholderHub:
-    """Placeholder class to make tests pass.
-
-    TODO Remove this placeholder class and replace with things from your PyPI package.
-    """
-
-    def __init__(self, host: str) -> None:
-        """Initialize."""
-        self.host = host
-
-    async def authenticate(self, username: str, password: str) -> bool:
-        """Test if we can authenticate with the host."""
-        return True
-
-
-async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
-    """Validate the user input allows us to connect.
-
-    Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
-    """
-    # TODO validate the data can be used to set up a connection.
-
-    # If your PyPI package is not built with async, pass your methods
-    # to the executor:
-    # await hass.async_add_executor_job(
-    #     your_validate_func, data["username"], data["password"]
-    # )
-
-    hub = PlaceholderHub(data["host"])
-
-    if not await hub.authenticate(data["username"], data["password"]):
-        raise InvalidAuth
-
-    # If you cannot connect:
-    # throw CannotConnect
-    # If the authentication is wrong:
-    # InvalidAuth
-
-    # Return info that you want to store in the config entry.
-    return {"title": "Name of the device"}
-
-
-class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for De Dietrich C-230 Eco."""
+class DiematicFlowHandler(ConfigFlow, domain=DOMAIN):
+    """Handle a Diematic config flow."""
 
     VERSION = 1
+
+    def __init__(self):
+        """Set up the instance."""
+        self.discovery_info = {}
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Handle the initial step."""
+        """Handle a flow initiated by the user."""
         if user_input is None:
-            return self.async_show_form(
-                step_id="user", data_schema=STEP_USER_DATA_SCHEMA
-            )
-
-        errors = {}
+            return self._show_setup_form()
 
         try:
             info = await validate_input(self.hass, user_input)
-        except CannotConnect:
-            errors["base"] = "cannot_connect"
-        except InvalidAuth:
-            errors["base"] = "invalid_auth"
-        except Exception:  # pylint: disable=broad-except
-            _LOGGER.exception("Unexpected exception")
-            errors["base"] = "unknown"
-        else:
-            return self.async_create_entry(title=info["title"], data=user_input)
+        except (DiematicConnectionError, DiematicResponseError):
+            _LOGGER.debug("Diematic Connection/Response Error", exc_info=True)
+            return self._show_setup_form({"base": "cannot_connect"})
+        except DiematicParseError:
+            _LOGGER.debug("Diematic Parse Error", exc_info=True)
+            return self.async_abort(reason="parse_error")
+        except DiematicError:
+            _LOGGER.debug("Diematic Error", exc_info=True)
+            return self.async_abort(reason="diematic_error")
 
+        unique_id = user_input[CONF_UUID] = info[CONF_UUID]
+
+        await self.async_set_unique_id(unique_id)
+        self._abort_if_unique_id_configured(updates={CONF_HOST: user_input[CONF_HOST]})
+
+        return self.async_create_entry(title=user_input[CONF_HOST], data=user_input)
+
+    def _show_setup_form(self, errors: dict | None = None) -> FlowResult:
+        """Show the setup form to the user."""
         return self.async_show_form(
-            step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
+            step_id="user",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        CONF_HOST, msg="Host where diematic server is running"
+                    ): str,
+                    vol.Required(
+                        CONF_PORT,
+                        msg="Port where the server is listening",
+                        default=8080,
+                    ): int,
+                    vol.Required(
+                        CONF_SSL,
+                        msg="is the server is using ssl?",
+                        default=False,
+                    ): bool,
+                    vol.Required(
+                        CONF_VERIFY_SSL,
+                        msg="Verify the server certificate?",
+                        default=False,
+                    ): bool,
+                }
+            ),
+            errors=errors or {},
         )
-
-
-class CannotConnect(HomeAssistantError):
-    """Error to indicate we cannot connect."""
-
-
-class InvalidAuth(HomeAssistantError):
-    """Error to indicate there is invalid auth."""

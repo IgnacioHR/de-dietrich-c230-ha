@@ -1,15 +1,15 @@
 {
   "domain": "diematic_3_c230_eco",
   "name": "De Dietrich C-230 Eco",
-  "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/diematic_3_c230_eco",
   "requirements": [],
+  "codeowners": ["@IgnacioHR"],
+  "config_flow": true,
   "ssdp": [],
   "zeroconf": [],
   "homekit": {},
   "dependencies": [],
-  "codeowners": [
-    "@IgnacioHR"
-  ],
-  "iot_class": "local_polling"
+  "iot_class": "local_polling",
+  "version": "0.0.1",
+  "loggers": ["deepmerge"]
 }

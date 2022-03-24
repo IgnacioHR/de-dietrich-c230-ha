@@ -1,11 +1,15 @@
 {
   "config": {
+    "flow_title": "{name}",
     "step": {
       "user": {
+        "title": "Link your Diematic boiler",
+        "description": "Set up your Diematic boiler via the Diematic HTTP server to integrate with Home Assistant",
         "data": {
           "host": "[%key:common::config_flow::data::host%]",
-          "username": "[%key:common::config_flow::data::username%]",
-          "password": "[%key:common::config_flow::data::password%]"
+          "port": "[%key:common::config_flow::data::port%]",
+          "ssl": "[%key:common::config_flow::data::ssl%]",
+          "verify_ssl": "[%key:common::config_flow::data::verify_ssl%]"
         }
       }
     },
