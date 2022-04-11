@@ -5,12 +5,10 @@ import logging
 
 from datetime import timedelta
 
-from .exceptions import DiematicError
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-from .boiler_client import DiematicBoilerClient
 from .const import DOMAIN
-from .models import Boiler
+from diematic_client import DiematicError, DiematicBoilerClient, Boiler
 
 SCAN_INTERVAL = timedelta(seconds=60)
 
@@ -21,19 +19,10 @@ class DiematicCoordinator(DataUpdateCoordinator[Boiler]):
     """Class to manage fetching Boiler data from single endpoint"""
 
     def __init__(
-        self,
-        hass: HomeAssistant,
-        *,
-        host: str,
-        port: int,
-        base_path: str = "/diematic/",
-        tls: bool,
-        verify_ssl: bool,
+        self, hass: HomeAssistant, boiler_client: DiematicBoilerClient
     ) -> None:
         """Initialize global Boiler data updater"""
-        self.boiler_client = DiematicBoilerClient(
-            host=host, port=port, base_path=base_path, tls=tls, verify_ssl=verify_ssl
-        )
+        self.boiler_client = boiler_client
 
         super().__init__(
             hass,
@@ -46,12 +35,5 @@ class DiematicCoordinator(DataUpdateCoordinator[Boiler]):
         """Fetch data from server"""
         try:
             return await self.boiler_client.boiler()
-        except DiematicError as error:
-            raise UpdateFailed(f"Invalid response from API: {error}") from error
-
-    async def boiler_config(self) -> list:
-        """Fetch configuration from server daemon."""
-        try:
-            return await self.boiler_client.config()
         except DiematicError as error:
             raise UpdateFailed(f"Invalid response from API: {error}") from error

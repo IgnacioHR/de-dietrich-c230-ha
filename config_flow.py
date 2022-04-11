@@ -4,13 +4,13 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from .exceptions import (
+from diematic_client import DiematicBoilerClient
+from diematic_client import (
     DiematicConnectionError,
-    DiematicError,
     DiematicParseError,
     DiematicResponseError,
 )
-from .boiler_client import DiematicBoilerClient
+
 from homeassistant.config_entries import ConfigFlow
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
@@ -25,6 +25,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .const import CONF_UUID, DOMAIN
 
 import voluptuous as vol
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -69,9 +70,9 @@ class DiematicFlowHandler(ConfigFlow, domain=DOMAIN):
         except DiematicParseError:
             _LOGGER.debug("Diematic Parse Error", exc_info=True)
             return self.async_abort(reason="parse_error")
-        except DiematicError:
-            _LOGGER.debug("Diematic Error", exc_info=True)
-            return self.async_abort(reason="diematic_error")
+        # except DiematicError:
+        #     _LOGGER.debug("Diematic Error", exc_info=True)
+        #     return self.async_abort(reason="diematic_error")
 
         unique_id = user_input[CONF_UUID] = info[CONF_UUID]
 

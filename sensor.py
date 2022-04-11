@@ -3,19 +3,15 @@ from __future__ import annotations
 from homeassistant.components.sensor import (
     SensorEntity,
 )
+from homeassistant.const import DEVICE_CLASS_TEMPERATURE
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .coordinator import DiematicCoordinator
+from .diematic_bolier import DiematicBoiler
 from .const import DOMAIN
 from .entity import DiematicEntity
-
-
-def setup(hass: HomeAssistant, entry: ConfigEntry):
-    """Setup called."""
-    return True
 
 
 async def async_setup_entry(
@@ -23,40 +19,29 @@ async def async_setup_entry(
 ) -> None:
     """Set up the sensor platform"""
     # add_entries([DeDietrichC230Sensors()])
-    coordinator: DiematicCoordinator = hass.data[DOMAIN][entry.entry_id]
+    diematic_boiler: DiematicBoiler = hass.data[DOMAIN][entry.entry_id]
 
     if (unique_id := entry.unique_id) is None:
         unique_id = entry.unique_id
 
-    config = await coordinator.boiler_client.config()
+    config = await diematic_boiler.boiler_config()
 
     sensors: list[SensorEntity] = []
-    sensors.append(DiematicBoilerSensor(entry.entry_id, unique_id, coordinator))
-    for circuit in ("a", "acs"):
-        for day_of_week in (
-            "monday",
-            "tuesday",
-            "wednesday",
-            "thursday",
-            "friday",
-            "saturday",
-            "sunday",
-        ):
-            sensors.append(
-                DiematicBoilerConfortSensor(
-                    entry.entry_id, unique_id, coordinator, day_of_week, circuit
-                )
-            )
+    sensors.append(DiematicBoilerSensor(entry.entry_id, unique_id, diematic_boiler))
+
     for cal in config:
         if (
             "ha" in list(cal)
             and cal["ha"]
             and "unit" in list(cal)
             and cal["unit"] == "CelsiusTemperature"
+            and "step" not in list(cal)
+            and "max" not in list(cal)
+            and "min" not in list(cal)
         ):
             sensors.append(
                 DiematicBoilerTempSensor(
-                    entry.entry_id, unique_id, coordinator, cal["name"], cal["desc"]
+                    entry.entry_id, unique_id, diematic_boiler, cal["name"], cal["desc"]
                 )
             )
 
@@ -69,7 +54,7 @@ class DiematicSensor(DiematicEntity, SensorEntity):
     def __init__(
         self,
         *,
-        coordinator: DiematicCoordinator,
+        diematic_boiler: DiematicBoiler,
         enabled_default: bool = True,
         entry_id: str,
         unique_id: str,
@@ -86,7 +71,7 @@ class DiematicSensor(DiematicEntity, SensorEntity):
         super().__init__(
             entry_id=entry_id,
             device_id=unique_id,
-            coordinator=coordinator,
+            diematic_boiler=diematic_boiler,
             name=name,
             icon=icon,
             enabled_default=enabled_default,
@@ -97,16 +82,16 @@ class DiematicBoilerSensor(DiematicSensor):
     """Defines a Diematic Boiler sensor."""
 
     def __init__(
-        self, entry_id: str, unique_id: str, coordinator: DiematicCoordinator
+        self, entry_id: str, unique_id: str, diematic_boiler: DiematicBoiler
     ) -> None:
         """Initialize Diematic Boiler sensor."""
         super().__init__(
-            coordinator=coordinator,
+            diematic_boiler=diematic_boiler,
             entry_id=entry_id,
             unique_id=unique_id,
             icon="mdi:boiler",
             key="boiler",
-            name=coordinator.data.info.name,
+            name=diematic_boiler.coordinator.data.info.name,
             unit_of_measurement=None,
         )
 
@@ -123,13 +108,14 @@ class DiematicBoilerTempSensor(DiematicSensor):
         self,
         entry_id: str,
         unique_id: str,
-        coordinator: DiematicCoordinator,
+        diematic_boiler: DiematicBoiler,
         variable: str,
         name: str,
     ) -> None:
         self.variable = variable
+        self._attr_device_class = DEVICE_CLASS_TEMPERATURE
         super().__init__(
-            coordinator=coordinator,
+            diematic_boiler=diematic_boiler,
             entry_id=entry_id,
             unique_id=unique_id,
             icon="mdi:thermometer",
@@ -141,41 +127,3 @@ class DiematicBoilerTempSensor(DiematicSensor):
     @property
     def native_value(self) -> int:
         return self.coordinator.data.variables[self.variable]
-
-
-class DiematicBoilerConfortSensor(DiematicSensor):
-    """Defines a sensor that collects day/nignt bitmaps for onw day and one circuit into a 6 bytes single numeric value."""
-
-    def __init__(
-        self,
-        entry_id: str,
-        unique_id: str,
-        coordinator: DiematicCoordinator,
-        day_of_week: str,
-        circuit: str,
-    ) -> None:
-        self.day_of_week = day_of_week
-        self.circuit = circuit
-        super().__init__(
-            coordinator=coordinator,
-            entry_id=entry_id,
-            unique_id=unique_id,
-            icon="mdi:table-row",
-            key=f"confort_{day_of_week}_{circuit}",
-            name=f"Confort period for {day_of_week} and circuit {circuit}",
-            unit_of_measurement=None,
-        )
-
-    @property
-    def native_value(self) -> int:
-        asbits = ""
-        for starthour in range(0, 24):
-            for startminute in ["00", "30"]:
-                endhour = starthour if startminute == "00" else starthour + 1
-                if endhour == 24:
-                    endhour = 0
-                endminute = "00" if startminute == "30" else "30"
-                varname = f"{self.day_of_week}_{self.circuit}_{starthour:02}{startminute}_{endhour:02}{endminute}"
-                asbits += "1" if self.coordinator.data.variables[varname] else "0"
-
-        return int(asbits, 2)

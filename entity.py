@@ -5,7 +5,7 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
-from .coordinator import DiematicCoordinator
+from .diematic_bolier import DiematicBoiler
 
 
 class DiematicEntity(CoordinatorEntity):
@@ -16,13 +16,14 @@ class DiematicEntity(CoordinatorEntity):
         *,
         entry_id: str,
         device_id: str,
-        coordinator: DiematicCoordinator,
+        diematic_boiler: DiematicBoiler,
         name: str,
         icon: str,
         enabled_default: bool = True,
     ) -> None:
         """Initialize the Diematic entity."""
-        super().__init__(coordinator)
+        super().__init__(diematic_boiler.coordinator)
+        self._diematic_boiler = diematic_boiler
         self._device_id = device_id
         self._entry_id = entry_id
         self._attr_name = name

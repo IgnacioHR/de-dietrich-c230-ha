@@ -1,5 +1,6 @@
 """The De Dietrich C-230 Eco integration."""
 from __future__ import annotations
+from .diematic_bolier import DiematicBoiler
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
@@ -12,26 +13,29 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN
-from .coordinator import DiematicCoordinator
 
-PLATFORMS = [Platform.SENSOR]
+PLATFORMS = [
+    Platform.SENSOR,
+    Platform.NUMBER,
+    "timer_programmer",
+]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Diematic from a config entry."""
     hass.data.setdefault(DOMAIN, {})
-    if not (coordinator := hass.data[DOMAIN].get(entry.entry_id)):
+    if not (diematic_boiler := hass.data[DOMAIN].get(entry.entry_id)):
         # Create IPP instance for this entry
-        coordinator = DiematicCoordinator(
+        diematic_boiler = DiematicBoiler(
             hass,
             host=entry.data[CONF_HOST],
             port=entry.data[CONF_PORT],
             tls=entry.data[CONF_SSL],
             verify_ssl=entry.data[CONF_VERIFY_SSL],
         )
-        hass.data[DOMAIN][entry.entry_id] = coordinator
+        hass.data[DOMAIN][entry.entry_id] = diematic_boiler
 
-    await coordinator.async_config_entry_first_refresh()
+    await diematic_boiler.coordinator.async_config_entry_first_refresh()
 
     hass.config_entries.async_setup_platforms(entry, PLATFORMS)
 
