@@ -160,6 +160,7 @@ class DiematicTimerProgrammer(DiematicEntity, TimerProgrammerEntity):
             )
 
     async def async_read_confirm_value(self, variable: str, write_value: int):
+        """Read register value until matches write_value or timeout happens."""
         i = 0
         while i < 20:
             i += 1
