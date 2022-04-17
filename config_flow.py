@@ -5,8 +5,12 @@ import logging
 from typing import Any
 
 import voluptuous as vol
-from diematic_client import (DiematicBoilerClient, DiematicConnectionError,
-                             DiematicParseError, DiematicResponseError)
+from diematic_client import (
+    DiematicBoilerClient,
+    DiematicConnectionError,
+    DiematicParseError,
+    DiematicResponseError,
+)
 from homeassistant.config_entries import ConfigFlow
 from homeassistant.const import CONF_HOST, CONF_PORT, CONF_SSL, CONF_VERIFY_SSL
 from homeassistant.core import HomeAssistant
