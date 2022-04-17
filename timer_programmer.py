@@ -1,17 +1,18 @@
 """Support for setting values to the boiler registers"""
 from __future__ import annotations
-from typing import Any
+
 import asyncio
 import logging
+from typing import Any
 
+from diematic_client import DiematicError, DiematicStatus
 from homeassistant.components.timer_programmer import TimerProgrammerEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from diematic_client import DiematicError, DiematicStatus
-from .diematic_bolier import DiematicBoiler
 from .const import DOMAIN
+from .diematic_bolier import DiematicBoiler
 from .entity import DiematicEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -172,8 +173,7 @@ class DiematicTimerProgrammer(DiematicEntity, TimerProgrammerEntity):
             ):
                 self.async_schedule_update_ha_state(True)
                 break
-            else:
-                await asyncio.sleep(1)
+            await asyncio.sleep(1)
         if i >= 20:
             _LOGGER.warning(
                 "Timeout setting value '%s' to register '%s'",

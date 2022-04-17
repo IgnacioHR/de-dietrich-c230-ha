@@ -2,13 +2,14 @@
 from __future__ import annotations
 
 import logging
-
 from datetime import timedelta
 
+from diematic_client import Boiler, DiematicBoilerClient, DiematicError
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.update_coordinator import (DataUpdateCoordinator,
+                                                      UpdateFailed)
+
 from .const import DOMAIN
-from diematic_client import DiematicError, DiematicBoilerClient, Boiler
 
 SCAN_INTERVAL = timedelta(seconds=60)
 

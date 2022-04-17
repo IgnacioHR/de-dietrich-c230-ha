@@ -1,18 +1,13 @@
 """The De Dietrich C-230 Eco integration."""
 from __future__ import annotations
-from .diematic_bolier import DiematicBoiler
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import (
-    CONF_HOST,
-    CONF_PORT,
-    CONF_SSL,
-    CONF_VERIFY_SSL,
-    Platform,
-)
+from homeassistant.const import (CONF_HOST, CONF_PORT, CONF_SSL,
+                                 CONF_VERIFY_SSL, Platform)
 from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN
+from .diematic_bolier import DiematicBoiler
 
 PLATFORMS = [
     Platform.SENSOR,

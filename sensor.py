@@ -1,16 +1,14 @@
 """De Dietrich C-230 Boiler sensors"""
 from __future__ import annotations
-from homeassistant.components.sensor import (
-    SensorEntity,
-)
-from homeassistant.const import DEVICE_CLASS_TEMPERATURE
 
-from homeassistant.core import HomeAssistant
+from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import DEVICE_CLASS_TEMPERATURE
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .diematic_bolier import DiematicBoiler
 from .const import DOMAIN
+from .diematic_bolier import DiematicBoiler
 from .entity import DiematicEntity
 
 

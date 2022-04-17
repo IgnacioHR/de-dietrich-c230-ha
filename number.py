@@ -2,15 +2,14 @@
 import asyncio
 import logging
 
+from diematic_client import DiematicError, DiematicStatus
 from homeassistant.components.number import NumberEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from diematic_client import DiematicError, DiematicStatus
-
-from .diematic_bolier import DiematicBoiler
 from .const import DOMAIN
+from .diematic_bolier import DiematicBoiler
 from .entity import DiematicEntity
 
 _LOGGER = logging.getLogger(__name__)

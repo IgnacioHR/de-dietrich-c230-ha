@@ -4,28 +4,16 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from diematic_client import DiematicBoilerClient
-from diematic_client import (
-    DiematicConnectionError,
-    DiematicParseError,
-    DiematicResponseError,
-)
-
+import voluptuous as vol
+from diematic_client import (DiematicBoilerClient, DiematicConnectionError,
+                             DiematicParseError, DiematicResponseError)
 from homeassistant.config_entries import ConfigFlow
+from homeassistant.const import CONF_HOST, CONF_PORT, CONF_SSL, CONF_VERIFY_SSL
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.const import (
-    CONF_HOST,
-    CONF_PORT,
-    CONF_SSL,
-    CONF_VERIFY_SSL,
-)
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import CONF_UUID, DOMAIN
-
-import voluptuous as vol
-
 
 _LOGGER = logging.getLogger(__name__)
 

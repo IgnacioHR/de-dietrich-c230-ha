@@ -1,7 +1,8 @@
 """Representation of a Diematic boiler."""
 
+from diematic_client import DiematicBoilerClient, DiematicError, DiematicStatus
 from homeassistant.core import HomeAssistant
-from diematic_client import DiematicError, DiematicBoilerClient, DiematicStatus
+
 from .coordinator import DiematicCoordinator, UpdateFailed
 
 
