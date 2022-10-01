@@ -71,9 +71,9 @@ class DiematicNumber(DiematicEntity, NumberEntity):
         min_value: float,
     ) -> None:
         self.variable = variable
-        self._attr_step = step
-        self._attr_max_value = max_value
-        self._attr_min_value = min_value
+        self._attr_native_step = step
+        self._attr_native_max_value = max_value
+        self._attr_native_min_value = min_value
         self._attr_unique_id = f"{unique_id}_{variable}"
         self._attr_native_unit_of_measurement = "°C"
         super().__init__(
@@ -85,10 +85,10 @@ class DiematicNumber(DiematicEntity, NumberEntity):
         )
 
     @property
-    def value(self) -> float:
+    def native_value(self) -> float:
         return self.coordinator.data.variables[self.variable]
 
-    async def async_set_value(self, value: float) -> None:
+    async def async_set_native_value(self, value: float) -> None:
         try:
             result = await self._diematic_boiler.update_boiler_register(
                 self.variable, value

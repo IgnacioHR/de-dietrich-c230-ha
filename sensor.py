@@ -1,4 +1,4 @@
-"""De Dietrich C-230 Boiler sensors"""
+"""De Dietrich C-230 Boiler sensors."""
 from __future__ import annotations
 
 from homeassistant.components.sensor import SensorEntity
@@ -15,7 +15,7 @@ from .entity import DiematicEntity
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    """Set up the sensor platform"""
+    """Set up the sensor platform."""
     # add_entries([DeDietrichC230Sensors()])
     diematic_boiler: DiematicBoiler = hass.data[DOMAIN][entry.entry_id]
 
@@ -39,7 +39,11 @@ async def async_setup_entry(
         ):
             sensors.append(
                 DiematicBoilerTempSensor(
-                    entry.entry_id, unique_id, diematic_boiler, cal["name"], cal["desc"]
+                    entry_id=entry.entry_id,
+                    unique_id=unique_id,
+                    diematic_boiler=diematic_boiler,
+                    variable=cal["name"],
+                    name=cal["desc"],
                 )
             )
 

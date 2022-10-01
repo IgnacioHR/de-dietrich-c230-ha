@@ -13,11 +13,13 @@ from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN
 from .diematic_bolier import DiematicBoiler
+from . import schedule
 
 PLATFORMS = [
     Platform.SENSOR,
     Platform.NUMBER,
     "timer_programmer",
+    Platform.BINARY_SENSOR,
 ]
 
 
@@ -38,6 +40,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await diematic_boiler.coordinator.async_config_entry_first_refresh()
 
     hass.config_entries.async_setup_platforms(entry, PLATFORMS)
+
+    await schedule.async_setup(hass)
 
     return True
 
