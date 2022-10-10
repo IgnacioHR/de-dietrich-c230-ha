@@ -1,0 +1,7 @@
+{
+  "name": "De dietrich C230 ECO gas boiler",
+  "render_readme": true,
+  "zip_release": true,
+  "filename": "de_dietrich_c230_ha.zip",
+  "homeassistant": "2022.10.0"
+}

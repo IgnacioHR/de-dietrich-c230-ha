@@ -1,0 +1,14 @@
+{
+  "packageFiles": [
+    {
+      "filename": "custom_components/diematic_3_c230_eco/manifest.json",
+      "type": "json"
+    }
+  ],
+  "bumpFiles": [
+    {
+      "filename": "custom_components/diematic_3_c230_eco/manifest.json",
+      "type": "json"
+    }
+  ]
+}

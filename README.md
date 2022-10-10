@@ -1,7 +1,41 @@
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-yellow.svg?style=for-the-badge)](https://github.com/custom-components/hacs) [![GitHub release (latest by date)](https://img.shields.io/github/v/release/IgnacioHR/de-dietrich-c230-ha?label=Latest%20release&style=for-the-badge)](https://github.com/IgnacioHR/de-dietrich-c230-ha/releases) [![GitHub all releases](https://img.shields.io/github/downloads/IgnacioHR/de-dietrich-c230-ha/total?style=for-the-badge)](https://github.com/IgnacioHR/de-dietrich-c230-ha/releases)
+
 # de-dietrich-c230-ha
 De Dietrich C-230 boiler to Home Assistant integration
 
 This is my first HA integration so I'm just exploring how to do it!
+
+## Features
+
+Allows to visualize the status of the boiler from Home Assistant. In some cases it is possible to modify the bolier parameters.
+
+### Sensors
+
+- Provides temperature sensors for circuits A, B, C and ACS.
+- Allows to edit every circuit target temperature for day and night
+- Provides access to see the calibration offset for every circuit
+- Provides a sensor with boiler status. useful in case of boiler errors
+- Provides capacity to visualize if the circuits are in ON or OFF status (day or night) via scheduler helpers
+- Provides binary sensors for the status of the different boiler pumps
+
+### Installation using HACS
+
+1. Open `Integrations` inside the HACS configuration.
+2. Click the + button in the bottom right corner, select `De Dietrich C-230 boiler` and then `Install this repository in HACS`.
+3. Once installation is complete, restart Home Assistant
+
+### **Manual installation**
+
+1. Download `de_dietrich_c230_ha.zip` from the latest release in https://github.com/IgnacioHR/de-dietrich-c230-ha/releases/latest
+2. Unzip into `<hass_folder>/config/custom_components`
+    ```shell
+    $ unzip de_dietrich_c230_ha.zip -d <hass_folder>/custom_components/diematic_3_c230_eco
+    ```
+3. Restart Home Assistant
+
+# Configuration
+
+TBD
 
 # Current status
 
