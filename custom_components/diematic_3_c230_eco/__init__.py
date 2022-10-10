@@ -18,7 +18,7 @@ from . import schedule
 PLATFORMS = [
     Platform.SENSOR,
     Platform.NUMBER,
-    "timer_programmer",
+    # "timer_programmer",
     Platform.BINARY_SENSOR,
 ]
 
