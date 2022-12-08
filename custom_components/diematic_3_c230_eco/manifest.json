@@ -5,7 +5,7 @@
   "documentation": "https://www.home-assistant.io/integrations/diematic_3_c230_eco",
   "issue_tracker": "https://github.com/IgnacioHR/de-dietrich-c230-ha/issues",
   "requirements": [
-    "diematic_client==1.6"
+    "diematic_client==1.7"
   ],
   "codeowners": [
     "@IgnacioHR"
