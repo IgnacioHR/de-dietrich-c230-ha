@@ -107,6 +107,7 @@ class DiematicBoilerBinarySensor(DiematicEntity, BinarySensorEntity):
     ) -> None:
         """Initialize Diematic binary sensor."""
         self.variable = variable
+        self._attr_unique_id = f"{unique_id}_{variable}"
         super().__init__(
             entry_id=entry_id,
             device_id=unique_id,

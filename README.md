@@ -49,6 +49,10 @@ That part of the code is stable, but it is not publicly available yet. It will b
 
 Now, I'm trying to create a front-end for some services in my Home Assistant and due to the big number of sensors to be created and values to be stored in the influx-db it makes more sense to develop a custom component based on sensors using only the RESTful services.
 
+# Change history
+
+2023-2-6: Added unique id for binary sensors
+
 # Note
 
 The is under development!
