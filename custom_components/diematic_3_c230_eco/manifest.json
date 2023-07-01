@@ -1,22 +1,22 @@
 {
   "domain": "diematic_3_c230_eco",
-  "version": "1.0.7",
   "name": "De Dietrich C-230 Eco",
-  "documentation": "https://www.home-assistant.io/integrations/diematic_3_c230_eco",
-  "issue_tracker": "https://github.com/IgnacioHR/de-dietrich-c230-ha/issues",
-  "requirements": [
-    "diematic_client==1.9"
-  ],
   "codeowners": [
     "@IgnacioHR"
   ],
   "config_flow": true,
-  "ssdp": [],
-  "zeroconf": [],
-  "homekit": {},
   "dependencies": [
     "schedule"
   ],
+  "documentation": "https://www.home-assistant.io/integrations/diematic_3_c230_eco",
+  "homekit": {},
   "iot_class": "local_polling",
-  "loggers": []
+  "issue_tracker": "https://github.com/IgnacioHR/de-dietrich-c230-ha/issues",
+  "loggers": [],
+  "requirements": [
+    "diematic_client==1.9"
+  ],
+  "ssdp": [],
+  "version": "1.0.7",
+  "zeroconf": []
 }
