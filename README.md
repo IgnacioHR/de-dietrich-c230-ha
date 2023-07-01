@@ -3,11 +3,13 @@
 # de-dietrich-c230-ha
 De Dietrich C-230 boiler to Home Assistant integration
 
-This is my first HA integration so I'm just exploring how to do it!
-
 ## Features
 
 Allows to visualize the status of the boiler from Home Assistant. In some cases it is possible to modify the bolier parameters.
+I tried to implement functionality to program the timers from Home Assistant but that doesn't work because of lack of an Entity
+in HA with the capacity to store the start-end time information. I managed to hack the "number" entity to store that info but
+ended up thinking it is not apropriate for this purpose. So, I'm waiting for HA to become more flexible about how to add entities
+otherwise this will not be possible.
 
 ### Sensors
 
@@ -51,8 +53,9 @@ Now, I'm trying to create a front-end for some services in my Home Assistant and
 
 # Change history
 
-2023-2-6: Added unique id for binary sensors
+2023-02-06: Added unique id for binary sensors
+2023-07-01: Maintenance vesion to fix initialization issues
 
 # Note
 
-The is under development!
+This integration works for me! There is no guarantee it will work for your use case. You need an RPI connected to the Boiler
