@@ -3,9 +3,9 @@ from __future__ import annotations
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import DEVICE_CLASS_TEMPERATURE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.components.sensor import SensorDeviceClass
 
 from .const import DOMAIN
 from .diematic_bolier import DiematicBoiler
@@ -115,7 +115,7 @@ class DiematicBoilerTempSensor(DiematicSensor):
         name: str,
     ) -> None:
         self.variable = variable
-        self._attr_device_class = DEVICE_CLASS_TEMPERATURE
+        self._attr_device_class = SensorDeviceClass.TEMPERATURE
         super().__init__(
             diematic_boiler=diematic_boiler,
             entry_id=entry_id,
