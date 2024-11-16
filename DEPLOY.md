@@ -1,6 +1,6 @@
 # About this document
 
-I just removed Travis integration from this project because I don't understand the errors and don't have time to fix all them so better keep this information here to run the process manually when a new rele
+I just removed Travis integration from this project because I don't understand the errors and don't have time to fix all them so better keep this information here to run the process manually when creating a new release
 
     language: python
     install: echo "Nothing to install, $TRAVIS_TAG"

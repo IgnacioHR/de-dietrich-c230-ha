@@ -55,6 +55,7 @@ Now, I'm trying to create a front-end for some services in my Home Assistant and
 
 2023-02-06: Added unique id for binary sensors
 2023-07-01: Maintenance vesion to fix initialization issues
+2024-11-16: The new backend, in progress, publishes diematic data to mqtt if configured, the unit written as "CelsiusTemperature" required to be converted into "°C" or "K" in the diematic.yaml file so this component required a fix to keep working with the old and new backends.
 
 # Note
 

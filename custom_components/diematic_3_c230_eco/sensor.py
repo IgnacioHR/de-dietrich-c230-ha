@@ -32,7 +32,7 @@ async def async_setup_entry(
             "ha" in list(cal)
             and cal["ha"]
             and "unit" in list(cal)
-            and cal["unit"] == "CelsiusTemperature"
+            and (cal["unit"] == "CelsiusTemperature" or cal["unit"] == "°C" or cal["unit"] == "K")
             and "step" not in list(cal)
             and "max" not in list(cal)
             and "min" not in list(cal)

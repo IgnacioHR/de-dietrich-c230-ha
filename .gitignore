@@ -2,3 +2,4 @@
 *.pyo
 __pycache__/
 venv/
+custom_components/diematic_3_c230_eco/de_dietrich_c230_ha.zip
