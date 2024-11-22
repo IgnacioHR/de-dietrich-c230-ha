@@ -1,13 +1,14 @@
 """Representation of a Diematic boiler."""
 
 from diematic_client import DiematicBoilerClient, DiematicError, DiematicStatus
+
 from homeassistant.core import HomeAssistant
 
 from .coordinator import DiematicCoordinator, UpdateFailed
 
 
 class DiematicBoiler:
-    """This is a Diematic Boiler with access to services."""
+    """Diematic Boiler with access to services."""
 
     def __init__(
         self,
@@ -19,7 +20,7 @@ class DiematicBoiler:
         tls: bool,
         verify_ssl: bool,
     ) -> None:
-
+        """Initialize Diematic boiler."""
         self.boiler_client = DiematicBoilerClient(
             host=host,
             port=port,
@@ -42,16 +43,16 @@ class DiematicBoiler:
             raise UpdateFailed(f"Invalid response from API: {error}") from error
 
     async def update_boiler_register(
-        self, parameter: str, value: int or float or str
+        self, parameter: str, value: float | str
     ) -> DiematicStatus:
-        """Updates a register in the boiler."""
+        """Update a boiler register."""
         try:
             return await self.boiler_client.update_boiler_register(parameter, value)
         except DiematicError as error:
             raise UpdateFailed(f"Cannot update register value: {error}") from error
 
     async def read_boiler_register(self, parameter: str) -> dict:
-        """Reads the content of a single register."""
+        """Read the content of a single register."""
         try:
             return await self.boiler_client.read_boiler_register(parameter)
         except DiematicError as error:

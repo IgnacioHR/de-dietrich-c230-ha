@@ -1,10 +1,12 @@
-"""Coordinator for the De Dietrich boiler integration"""
+"""Coordinator for the De Dietrich boiler integration."""
+
 from __future__ import annotations
 
-import logging
 from datetime import timedelta
+import logging
 
 from diematic_client import Boiler, DiematicBoilerClient, DiematicError
+
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
@@ -16,12 +18,12 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class DiematicCoordinator(DataUpdateCoordinator[Boiler]):
-    """Class to manage fetching Boiler data from single endpoint"""
+    """Class to manage fetching Boiler data from single endpoint."""
 
     def __init__(
         self, hass: HomeAssistant, boiler_client: DiematicBoilerClient
     ) -> None:
-        """Initialize global Boiler data updater"""
+        """Initialize global Boiler data updater."""
         self.boiler_client = boiler_client
 
         super().__init__(
@@ -32,7 +34,7 @@ class DiematicCoordinator(DataUpdateCoordinator[Boiler]):
         )
 
     async def _async_update_data(self) -> Boiler:
-        """Fetch data from server"""
+        """Fetch data from server."""
         try:
             return await self.boiler_client.boiler()
         except DiematicError as error:

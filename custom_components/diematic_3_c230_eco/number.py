@@ -1,8 +1,10 @@
-"""Support for setting values to the boiler registers"""
+"""Support for setting values to the boiler registers."""
+
 import asyncio
 import logging
 
 from diematic_client import DiematicError, DiematicStatus
+
 from homeassistant.components.number import NumberEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -20,7 +22,7 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """add number entities"""
+    """Add number entities."""
     diematic_boiler: DiematicBoiler = hass.data[DOMAIN][config_entry.entry_id]
 
     if (unique_id := config_entry.unique_id) is None:
@@ -28,36 +30,38 @@ async def async_setup_entry(
 
     config = await diematic_boiler.boiler_config()
 
-    numbers: list[NumberEntity] = []
-
-    for cal in config:
+    numbers: list[NumberEntity] = [
+        DiematicNumber(
+            config_entry.entry_id,
+            unique_id,
+            diematic_boiler,
+            cal["name"],
+            cal["desc"],
+            float(cal["step"]),
+            float(cal["max"]),
+            float(cal["min"]),
+        )
+        for cal in config
         if (
             "ha" in list(cal)
             and cal["ha"]
             and "unit" in list(cal)
-            and (cal["unit"] == "CelsiusTemperature" or cal["unit"] == "°C" or cal["unit"] == "K")
+            and (
+                cal["unit"] == "CelsiusTemperature"
+                or cal["unit"] == "°C"
+                or cal["unit"] == "K"
+            )
             and "step" in list(cal)
             and "max" in list(cal)
             and "min" in list(cal)
-        ):
-            numbers.append(
-                DiematicNumber(
-                    config_entry.entry_id,
-                    unique_id,
-                    diematic_boiler,
-                    cal["name"],
-                    cal["desc"],
-                    float(cal["step"]),
-                    float(cal["max"]),
-                    float(cal["min"]),
-                )
-            )
+        )
+    ]
 
     async_add_entities(numbers, True)
 
 
 class DiematicNumber(DiematicEntity, NumberEntity):
-    """Defines a numeric parameter that can be set to the boiler"""
+    """Define a numeric parameter that can be set to the boiler."""
 
     def __init__(
         self,
@@ -70,6 +74,7 @@ class DiematicNumber(DiematicEntity, NumberEntity):
         max_value: float,
         min_value: float,
     ) -> None:
+        """Initialize a Diematic Number."""
         self.variable = variable
         self._attr_native_step = step
         self._attr_native_max_value = max_value
@@ -86,9 +91,11 @@ class DiematicNumber(DiematicEntity, NumberEntity):
 
     @property
     def native_value(self) -> float:
+        """Obtain the native value."""
         return self.coordinator.data.variables[self.variable]
 
     async def async_set_native_value(self, value: float) -> None:
+        """Set the native value asynchronusly."""
         try:
             result = await self._diematic_boiler.update_boiler_register(
                 self.variable, value
@@ -103,7 +110,7 @@ class DiematicNumber(DiematicEntity, NumberEntity):
                     )
                     if (
                         "status" in readresult
-                        and "read" == readresult["status"]
+                        and readresult["status"] == "read"
                         and readresult["value"] == value
                     ):
                         self.async_schedule_update_ha_state(True)

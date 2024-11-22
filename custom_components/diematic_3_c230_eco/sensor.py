@@ -1,11 +1,11 @@
 """De Dietrich C-230 Boiler sensors."""
+
 from __future__ import annotations
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.components.sensor import SensorDeviceClass
 
 from .const import DOMAIN
 from .diematic_bolier import DiematicBoiler
@@ -27,25 +27,29 @@ async def async_setup_entry(
     sensors: list[SensorEntity] = []
     sensors.append(DiematicBoilerSensor(entry.entry_id, unique_id, diematic_boiler))
 
-    for cal in config:
+    sensors.extend(
+        DiematicBoilerTempSensor(
+            entry_id=entry.entry_id,
+            unique_id=unique_id,
+            diematic_boiler=diematic_boiler,
+            variable=cal["name"],
+            name=cal["desc"],
+        )
+        for cal in config
         if (
             "ha" in list(cal)
             and cal["ha"]
             and "unit" in list(cal)
-            and (cal["unit"] == "CelsiusTemperature" or cal["unit"] == "°C" or cal["unit"] == "K")
+            and (
+                cal["unit"] == "CelsiusTemperature"
+                or cal["unit"] == "°C"
+                or cal["unit"] == "K"
+            )
             and "step" not in list(cal)
             and "max" not in list(cal)
             and "min" not in list(cal)
-        ):
-            sensors.append(
-                DiematicBoilerTempSensor(
-                    entry_id=entry.entry_id,
-                    unique_id=unique_id,
-                    diematic_boiler=diematic_boiler,
-                    variable=cal["name"],
-                    name=cal["desc"],
-                )
-            )
+        )
+    )
 
     async_add_entities(sensors, True)
 
@@ -99,12 +103,12 @@ class DiematicBoilerSensor(DiematicSensor):
 
     @property
     def native_value(self) -> str:
-        """Return the state of the sensor"""
+        """Return the state of the sensor."""
         return self.coordinator.data.variables["error"]
 
 
 class DiematicBoilerTempSensor(DiematicSensor):
-    """Defines a sensor that measures temperature"""
+    """Defines a sensor that measures temperature."""
 
     def __init__(
         self,
@@ -114,6 +118,7 @@ class DiematicBoilerTempSensor(DiematicSensor):
         variable: str,
         name: str,
     ) -> None:
+        """Initialize a DiematicBoilerTempSensor."""
         self.variable = variable
         self._attr_device_class = SensorDeviceClass.TEMPERATURE
         super().__init__(
@@ -128,4 +133,5 @@ class DiematicBoilerTempSensor(DiematicSensor):
 
     @property
     def native_value(self) -> int:
+        """Obtain the native value."""
         return self.coordinator.data.variables[self.variable]

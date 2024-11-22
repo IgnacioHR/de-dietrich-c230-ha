@@ -1,4 +1,5 @@
 """De Dietrich C-230 Boiler binary sensors."""
+
 from __future__ import annotations
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
@@ -22,26 +23,27 @@ async def async_setup_entry(
 
     config = await diematic_boiler.boiler_config()
 
-    bitstypes = []
-    for sub in config:
-        if "type" in list(sub) and "bits" in list(sub) and sub["type"] == "bits":
-            for item in sub["bits"]:
-                bitstypes.append(item)
+    bitstypes = [
+        bit
+        for sub in config
+        if "type" in list(sub) and "bits" in list(sub) and sub["type"] == "bits"
+        for bit in sub["bits"]
+    ]
 
     sensors: list[BinarySensorEntity] = []
 
-    for circuit in ("a", "b", "c"):
-        if f"monday_{circuit}_0000_0030" in bitstypes:
-            sensors.append(
-                DiematicBoilerBinarySensor(
-                    entry_id=entry.entry_id,
-                    unique_id=unique_id,
-                    diematic_boiler=diematic_boiler,
-                    variable=f"io_circ_{circuit}_pump_on",
-                    name=f"Pump circuit {circuit}",
-                    icon="mdi:pump",
-                )
-            )
+    sensors.extend(
+        DiematicBoilerBinarySensor(
+            entry_id=entry.entry_id,
+            unique_id=unique_id,
+            diematic_boiler=diematic_boiler,
+            variable=f"io_circ_{circuit}_pump_on",
+            name=f"Pump circuit {circuit}",
+            icon="mdi:pump",
+        )
+        for circuit in ("a", "b", "c")
+        if f"monday_{circuit}_0000_0030" in bitstypes
+    )
 
     sensors.append(
         DiematicBoilerBinarySensor(
@@ -65,17 +67,17 @@ async def async_setup_entry(
         )
     )
 
-    for n in ("1", "2", "3"):
-        sensors.append(
-            DiematicBoilerBinarySensor(
-                entry_id=entry.entry_id,
-                unique_id=unique_id,
-                diematic_boiler=diematic_boiler,
-                variable=f"io_aux_pump_{n}_on",
-                name=f"Aux {n} Pump",
-                icon="mdi:pump",
-            )
+    sensors.extend(
+        DiematicBoilerBinarySensor(
+            entry_id=entry.entry_id,
+            unique_id=unique_id,
+            diematic_boiler=diematic_boiler,
+            variable=f"io_aux_pump_{n}_on",
+            name=f"Aux {n} Pump",
+            icon="mdi:pump",
         )
+        for n in ("1", "2", "3")
+    )
 
     sensors.append(
         DiematicBoilerBinarySensor(
@@ -119,4 +121,5 @@ class DiematicBoilerBinarySensor(DiematicEntity, BinarySensorEntity):
 
     @property
     def is_on(self) -> bool | None:
+        """Returns true if the binary sensor is on."""
         return self.coordinator.data.variables[self.variable]

@@ -1,4 +1,5 @@
 """The De Dietrich C-230 Eco integration."""
+
 from __future__ import annotations
 
 from homeassistant.config_entries import ConfigEntry
@@ -11,15 +12,15 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant
 
+from . import schedule
 from .const import DOMAIN
 from .diematic_bolier import DiematicBoiler
-from . import schedule
 
 PLATFORMS = [
-    Platform.SENSOR,
-    Platform.NUMBER,
-    # "timer_programmer",
     Platform.BINARY_SENSOR,
+    Platform.NUMBER,
+    Platform.SENSOR,
+    # "timer_programmer",
 ]
 
 

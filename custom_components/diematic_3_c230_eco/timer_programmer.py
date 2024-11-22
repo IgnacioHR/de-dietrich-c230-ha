@@ -1,4 +1,5 @@
-"""Support for setting values to the boiler registers"""
+"""Support for setting values to the boiler registers."""
+
 from __future__ import annotations
 
 import asyncio
@@ -6,6 +7,7 @@ import logging
 from typing import Any
 
 from diematic_client import DiematicError, DiematicStatus
+
 from homeassistant.components.timer_programmer import TimerProgrammerEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -23,7 +25,7 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """add switch entities"""
+    """Add switch entities."""
     diematic_boiler: DiematicBoiler = hass.data[DOMAIN][config_entry.entry_id]
 
     if (unique_id := config_entry.unique_id) is None:
@@ -33,11 +35,12 @@ async def async_setup_entry(
 
     timer_programmers: list[TimerProgrammerEntity] = []
 
-    bitstypes = []
-    for sub in config:
-        if "type" in list(sub) and "bits" in list(sub) and sub["type"] == "bits":
-            for item in sub["bits"]:
-                bitstypes.append(item)
+    bitstypes = [
+        bit
+        for sub in config
+        if "type" in list(sub) and "bits" in list(sub) and sub["type"] == "bits"
+        for bit in sub["bits"]
+    ]
 
     for circuit in ("a", "b", "c", "acs"):
         week_timer_programmers: list[TimerProgrammerEntity] = []
@@ -110,9 +113,10 @@ class DiematicTimerProgrammer(DiematicEntity, TimerProgrammerEntity):
 
     @property
     def value(self) -> int:
+        """Obtain the value."""
         bitsvalue = 0
         i = 47
-        for starthour in range(0, 24):
+        for starthour in range(24):
             for startminute in ("00", "30"):
                 endhour = starthour if startminute == "00" else starthour + 1
                 if endhour == 24:
@@ -125,8 +129,9 @@ class DiematicTimerProgrammer(DiematicEntity, TimerProgrammerEntity):
         return bitsvalue
 
     async def async_set_value(self, value: int) -> None:
+        """Set the value async."""
         i = 47
-        for starthour in range(0, 24):
+        for starthour in range(24):
             for startminute in ("00", "30"):
                 endhour = starthour if startminute == "00" else starthour + 1
                 if endhour == 24:
@@ -168,7 +173,7 @@ class DiematicTimerProgrammer(DiematicEntity, TimerProgrammerEntity):
             readresult = await self._diematic_boiler.read_boiler_register(variable)
             if (
                 "status" in readresult
-                and "read" == readresult["status"]
+                and readresult["status"] == "read"
                 and readresult["value"] == write_value
             ):
                 self.async_schedule_update_ha_state(True)
@@ -204,6 +209,7 @@ class DiematicBoilerConfortTimerProgrammer(DiematicTimerProgrammer):
         day_of_week: str,
         circuit: str,
     ) -> None:
+        """Initialize a DiematicBoilerConfortTimerProgrammer."""
         self.day_of_week = day_of_week
         self.circuit = circuit
         self._attr_device_class = "timer_programmer"
@@ -230,6 +236,7 @@ class DiematicBoilerConfortGroupTimerProgrammer(DiematicTimerProgrammer):
         timer_programmers: list[DiematicBoilerConfortTimerProgrammer],
         circuit: str,
     ) -> None:
+        """Initialize a DiematicBoilerConfortGroupTimerProgrammer."""
         self._attr_device_class = "timer_programmer"
         self._timer_programmers = timer_programmers
         super().__init__(
@@ -245,9 +252,10 @@ class DiematicBoilerConfortGroupTimerProgrammer(DiematicTimerProgrammer):
 
     @property
     def value(self) -> int:
+        """Obtain the value."""
         bitsvalue = 0
         i = 47
-        for starthour in range(0, 24):
+        for starthour in range(24):
             for startminute in ("00", "30"):
                 endhour = starthour if startminute == "00" else starthour + 1
                 if endhour == 24:
@@ -263,8 +271,9 @@ class DiematicBoilerConfortGroupTimerProgrammer(DiematicTimerProgrammer):
         return bitsvalue
 
     async def async_set_value(self, value: int) -> None:
+        """Set the value async."""
         i = 47
-        for starthour in range(0, 24):
+        for starthour in range(24):
             for startminute in ("00", "30"):
                 endhour = starthour if startminute == "00" else starthour + 1
                 if endhour == 24:

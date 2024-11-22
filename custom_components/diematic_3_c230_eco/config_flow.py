@@ -1,16 +1,18 @@
 """Config flow to configure the Diematic integration."""
+
 from __future__ import annotations
 
 import logging
 from typing import Any
 
-import voluptuous as vol
 from diematic_client import (
     DiematicBoilerClient,
     DiematicConnectionError,
     DiematicParseError,
     DiematicResponseError,
 )
+import voluptuous as vol
+
 from homeassistant.config_entries import ConfigFlow
 from homeassistant.const import CONF_HOST, CONF_PORT, CONF_SSL, CONF_VERIFY_SSL
 from homeassistant.core import HomeAssistant
@@ -23,7 +25,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def validate_input(hass: HomeAssistant, data: dict) -> dict[str, Any]:
-    """Validate the user input"""
+    """Validate the user input."""
     session = async_get_clientsession(hass)
     boilerclient = DiematicBoilerClient(
         host=data[CONF_HOST],
@@ -43,7 +45,7 @@ class DiematicFlowHandler(ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Set up the instance."""
         self.discovery_info = {}
 

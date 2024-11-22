@@ -1,30 +1,33 @@
-"""The De Dietrich C-230 Eco schedulers"""
+"""The De Dietrich C-230 Eco scheduler."""
+
 import logging
 from typing import Any
-from .const import DOMAIN
-from .diematic_bolier import DiematicBoiler
 
 from homeassistant.components.schedule import DOMAIN as SCHEDULE_DOMAIN, Schedule
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_component import EntityComponent
 from homeassistant.helpers.typing import ConfigType
 
+from .const import DOMAIN
+from .diematic_bolier import DiematicBoiler
+
 LOGGER = logging.getLogger(__package__)
 DATA_INSTANCES = "entity_components"
 
 
 class DiematicBoilerSchedule(Schedule):
-    """Extension of Schedule entity baed on the information from the diematic boiler"""
+    """Extension of Schedule entity baed on the information from the diematic boiler."""
 
     def __init__(
         self,
         config: ConfigType,
     ) -> None:
+        """Initialize a Diematic Bouler Schedule."""
         super().__init__(config, True)
 
 
 async def async_setup(hass: HomeAssistant) -> bool:
-    """Set up async"""
+    """Set up async."""
 
     component: EntityComponent[Schedule] = hass.data.get(DATA_INSTANCES, {}).get(
         SCHEDULE_DOMAIN
@@ -38,7 +41,7 @@ async def async_setup(hass: HomeAssistant) -> bool:
 
 
 async def _prepare_schedules(hass: HomeAssistant) -> list[Schedule]:
-    """Read the information from diematic and prepare schedules"""
+    """Read the information from diematic and prepare schedules."""
     week_timer_programmers: list[Schedule] = []
 
     for boiler_key in hass.data[DOMAIN]:
@@ -47,29 +50,29 @@ async def _prepare_schedules(hass: HomeAssistant) -> list[Schedule]:
 
         bitstypes = await _prepare_bitstypes(diematic_boiler)
 
-        for circuit in ("a", "b", "c", "acs"):
-            week_timer_programmers.append(
-                _process_circuit(
-                    circuit,
-                    boiler_key,
-                    bitstypes,
-                    diematic_boiler.coordinator.data.variables,
-                )
+        week_timer_programmers.extend(
+            _process_circuit(
+                circuit,
+                boiler_key,
+                bitstypes,
+                diematic_boiler.coordinator.data.variables,
             )
+            for circuit in ("a", "b", "c", "acs")
+        )
 
     return week_timer_programmers
 
 
 async def _prepare_bitstypes(diematic_boiler: DiematicBoiler) -> list[str]:
-    """collect all variables of type bits"""
+    """Collect all variables of type bits."""
     config = await diematic_boiler.boiler_config()
 
-    bitstypes = []
-    for sub in config:
-        if "type" in list(sub) and "bits" in list(sub) and sub["type"] == "bits":
-            for item in sub["bits"]:
-                bitstypes.append(item)
-    return bitstypes
+    return [
+        b
+        for sub in config
+        if "type" in list(sub) and "bits" in list(sub) and sub["type"] == "bits"
+        for b in sub["bits"]
+    ]
 
 
 def _process_circuit(
@@ -78,7 +81,7 @@ def _process_circuit(
     bitstypes: list[str],
     diematic_data: dict[str, Any],
 ) -> DiematicBoilerSchedule:
-    """aaa"""
+    """Process a circuit and prepare DiematicBolierSchedule."""
     scheduler_config = {}
     scheduler_config["name"] = f"Scheduler {circuit}"
     scheduler_config["id"] = f"scheduler_{circuit}_{boiler_key}"
@@ -105,10 +108,10 @@ def _prepare_day_block(
     varname: str,
     diematic_data: dict[str, Any],
 ) -> None:
-    """read start - end periods from boiler data about one day and circuit and prepare array value for schedule"""
+    """Read start - end periods from boiler data about one day and circuit and prepare array value for schedule."""
     current_block = {}
     in_range = False
-    for starthour in range(0, 24):
+    for starthour in range(24):
         for startminute in ("00", "30"):
             endhour = starthour if startminute == "00" else starthour + 1
             if endhour == 24:
@@ -121,12 +124,12 @@ def _prepare_day_block(
                 if diematic_data[timevarname] == 1:
                     current_block["from"] = f"{starthour:02}:{startminute}:00"
                     in_range = True
-            else:
-                if diematic_data[timevarname] == 0:
-                    current_block["to"] = f"{starthour:02}:{startminute}:00"
-                    day_config.append(current_block)
-                    current_block = {}
-                    in_range = False
+            elif diematic_data[timevarname] == 0:
+                current_block["to"] = f"{starthour:02}:{startminute}:00"
+                day_config.append(current_block)
+                current_block = {}
+                in_range = False
+
     if in_range:
         current_block["to"] = "24:00:00"
         day_config.append(current_block)
